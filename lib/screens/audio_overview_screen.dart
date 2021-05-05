@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
@@ -24,6 +24,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
   User loggedInUser;
+  
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     }
   }
 
+  /*
   Future<void> getUsersAudioFiles() async {
     firebase_storage.ListResult result =
         await firebase_storage.FirebaseStorage.instanceFor(
@@ -57,7 +59,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
       print('Found file: $ref');
     });
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,20 +82,29 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                 height: 100.0,
                 width: double.infinity,
               ),
-              TextButton(
-                  onPressed: () {
-                    getUsersAudioFiles();
-                  },
-                  child: Text('Refresh')),
               Expanded(
                 child: SizedBox(
                   height: 300.0,
-                  child: ListView(
-                      padding: const EdgeInsets.all(8),
-                      children: audiofiles
-                          .map((audiofile) =>
-                              Container(height: 50, child: Text(audiofile)))
-                          .toList()
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance.collection('users').doc(loggedInUser.email).collection('audio').snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+                      // spinner wenn keine Daten existieren / noch nicht geladen sind
+                      if(!snapshot.hasData){
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      // Liste mit Titeln der Audiofiles
+                      return ListView(
+                        children: snapshot.data.docs.map((document) {
+                          return Center(
+                            child: Container(
+                              child: Text("Title: " + document['title']),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }
                   ),
                 ),
               ),
@@ -107,8 +118,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.add, size: 30), label: 'Add New'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.format_align_center, size: 30),
-                label: 'Text'),
+                icon: Icon(Icons.format_align_center, size: 30), label: 'Text'),
           ],
           elevation: 5.0,
           currentIndex: selectedPage,
