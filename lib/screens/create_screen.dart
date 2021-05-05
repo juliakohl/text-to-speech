@@ -24,12 +24,16 @@ class _CreateScreenState extends State<CreateScreen> {
   List pages = [AudioOverviewScreen.id, CreateScreen.id, TextScreen.id];
   int selectedPage = 1;
 
+  // Image variables
   File _image;
   final picker = ImagePicker();
+
+  //Firebase variables
   final _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User loggedInUser;
 
+  // access the users camera and save the image file to _image
   Future takeImage() async {
     final pickedFile = await picker.getImage(
       source: ImageSource.camera,
@@ -45,6 +49,7 @@ class _CreateScreenState extends State<CreateScreen> {
     });
   }
 
+  // access the users gallery and save the picked image file to _image
   Future getImage() async {
     final pickedFile = await picker.getImage(
       source: ImageSource.gallery,
@@ -64,9 +69,11 @@ class _CreateScreenState extends State<CreateScreen> {
   void initState() {
     super.initState();
 
+    //get the current user from firebase auth
     getCurrentUser();
   }
 
+  // retrieve the current user from firebase auth
   void getCurrentUser() {
     try {
       final user = _auth.currentUser;
@@ -79,6 +86,7 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
+  // upload a file to the users folder in the firebase storage (default bucket)
   Future<void> uploadFile(String loggedinUser, String filePath) async {
     File file = File('${Path.basename(filePath)}}');
     print(filePath + _image.path);
@@ -92,6 +100,7 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
+  // upload a pdf to the users folder in the pdf firebase storage bucket
   Future<void> processPDF(String loggedinUser) async {
     FilePickerResult _result =
         await FilePicker.platform.pickFiles(type: FileType.any);
@@ -118,6 +127,7 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
+  // update the users text value in the users firestore document and trigger the text2speech cloud function
   Future<void> addTextToFirestore(String filepath) async {
     DocumentReference _userDoc =
         FirebaseFirestore.instance.collection('users').doc(loggedInUser.email);
@@ -223,7 +233,7 @@ class _CreateScreenState extends State<CreateScreen> {
                   color: Colors.white,
                 ),
                 tooltip:
-                    'You can upload a document in xy format as a text source.',
+                    'You can upload an image as a text source.',
                 onPressed: () {
                   getImage();
                 },
