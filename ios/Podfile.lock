@@ -212,6 +212,8 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - audioplayers (0.0.1):
+    - Flutter
   - BoringSSL-GRPC (0.0.7):
     - BoringSSL-GRPC/Implementation (= 0.0.7)
     - BoringSSL-GRPC/Interface (= 0.0.7)
@@ -360,6 +362,8 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - path_provider (0.0.1):
+    - Flutter
   - PromisesObjC (1.2.12)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
@@ -367,6 +371,7 @@ PODS:
   - SwiftyGif (5.4.0)
 
 DEPENDENCIES:
+  - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
@@ -374,6 +379,7 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
 
 SPEC REPOS:
   trunk:
@@ -399,6 +405,8 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
+  audioplayers:
+    :path: ".symlinks/plugins/audioplayers/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   file_picker:
@@ -413,9 +421,12 @@ EXTERNAL SOURCES:
     :path: Flutter
   image_picker:
     :path: ".symlinks/plugins/image_picker/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
 
 SPEC CHECKSUMS:
   abseil: 6c8eb7892aefa08d929b39f9bb108e5367e3228f
+  audioplayers: 455322b54050b30ea4b1af7cd9e9d105f74efa8c
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   cloud_firestore: 5dbb01f115c77f4380e2248852518f52830d631f
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
@@ -439,6 +450,7 @@ SPEC CHECKSUMS:
   image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SwiftyGif: 5d4af95df24caf1c570dbbcb32a3b8a0763bc6d7
