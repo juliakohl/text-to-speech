@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../constants.dart';
 
@@ -63,6 +64,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 // TODO: add firebase registration
                 try{
                   final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+                  // add a new document for the user in firestore
+                  FirebaseFirestore.instance.collection('users').doc(email).set({"since": DateTime.now()});
+
                   if(newUser!=null){
                     Navigator.pushNamed(context, CreateScreen.id);
                   }

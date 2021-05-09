@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
 import 'package:text_to_speech/screens/create2_screen.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
-import 'package:text_to_speech/screens/text_screen.dart';
+import 'package:text_to_speech/screens/settings_screen.dart';
 import 'package:text_to_speech/screens/welcome_screen.dart';
 import 'package:text_to_speech/screens/login_screen.dart';
 import 'package:text_to_speech/screens/registration_screen.dart';
@@ -30,7 +30,7 @@ class InSono extends StatelessWidget {
         RegistrationScreen.id: (context) => RegistrationScreen(),
         CreateScreen.id: (context) => CreateScreen(),
         AudioOverviewScreen.id: (context) => AudioOverviewScreen(),
-        TextScreen.id: (context) => TextScreen(),
+        SettingsScreen.id: (context) => SettingsScreen(),
         Create2Screen.id: (context) => Create2Screen()
       },
     );

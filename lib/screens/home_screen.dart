@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.headset, size: 30), title: Text('Audio')),
             BottomNavigationBarItem(icon: Icon(Icons.add, size: 30), title: Text('Add New')),
-            BottomNavigationBarItem(icon: Icon(Icons.format_align_center, size: 30), title: Text('Text')),
+            BottomNavigationBarItem(icon: Icon(Icons.settings, size: 30), title: Text('Settings')),
           ],
           elevation: 5.0,
           currentIndex: selectedPage,
