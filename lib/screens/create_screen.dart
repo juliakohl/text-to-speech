@@ -191,8 +191,8 @@ class _CreateScreenState extends State<CreateScreen> {
     print(text);
 
     // Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
-    if (text.length >= 500) {
-      text = text.substring(0, 500);
+    if (text.length >= 20000) {
+      text = text.substring(0, 20000);
     }
 
     // neues Document zu Firestore hinzufügen, dass T2S Cloud Function triggered
