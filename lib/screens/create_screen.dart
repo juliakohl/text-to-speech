@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:text_to_speech/constants.dart';
+import 'package:text_to_speech/pdf_processing.dart';
 
 class CreateScreen extends StatefulWidget {
   static const String id = 'create_screen';
@@ -35,6 +36,8 @@ class _CreateScreenState extends State<CreateScreen> {
   // Audio File variables
   String audiofileTitle = "audiofile";
   String audiofileCategory = "default";
+  String audiofileLanguage = "de-DE";
+  String ssmlGender = "FEMALE";
 
   //Firebase variables
   final _auth = FirebaseAuth.instance;
@@ -57,7 +60,6 @@ class _CreateScreenState extends State<CreateScreen> {
       }
     });
   }
-
 
   // access the users gallery and save the picked image file to _image
   Future getImage() async {
@@ -128,16 +130,14 @@ class _CreateScreenState extends State<CreateScreen> {
         usePDF = true;
         feedback = 'Successfully uploaded $filename';
       });
-
     } else {
       print('User canceled the picker');
     }
   }
 
   // update the users text value in the users firestore document and trigger the text2speech cloud function
-  Future<void> addTextToFirestore(
-      String filepath, String title, String cat) async {
-
+  Future<void> addTextToFirestore(String filepath, String title, String cat,
+      String lang, String gender) async {
     // Referenz zu audio collection des users in firestore definieren
     CollectionReference _audioCollection = FirebaseFirestore.instance
         .collection('users')
@@ -154,54 +154,31 @@ class _CreateScreenState extends State<CreateScreen> {
     PdfTextExtractor extractor = PdfTextExtractor(document);
 
     //Extract all the text from the document.
-    var text = extractor.extractText();
+    //var text = extractor.extractText();
 
-    //Extract the text from all the pages.
-    /*List<TextLine> result = PdfTextExtractor(document)
-        .extractTextLines(startPageIndex: 0);
+    //Extract all the text from the document.
+    List<TextLine> result = extractor.extractTextLines();
 
-    Rect textBounds = Rect.fromLTWH(5, 5, 100, 200);
-
-    //Create a new instance of the PdfTextExtractor.
-    PdfTextExtractor extractor = PdfTextExtractor(document);
-
-    //Extract all the text from a particular page.
-    List<TextLine> result = extractor.extractTextLines(startPageIndex: 0);
-
-    //Predefined bound.
-    Rect textBounds = Rect.fromLTWH(474, 161, 50, 9);
-
-    String text = '';
-
-    for (int i = 0; i < result.length; i++) {
-      List<TextWord> wordCollection = result[i].wordCollection;
-      for (int j = 0; j < wordCollection.length; j++) {
-        if (textBounds.overlaps(wordCollection[j].bounds)) {
-          continue;
-        } else {
-          text += wordCollection[j].text;
-        }
-      }
-    }
-*/
-
+    String text = reduceTextToCommonFont(result);
     document.dispose();
 
     //Display the text.
     print(text);
 
     // Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
-    if (text.length >= 20000) {
-      text = text.substring(0, 20000);
+    if (text.length > 500) {
+      text = text.substring(0, 500);
     }
 
-    // neues Document zu Firestore hinzufügen, dass T2S Cloud Function triggered
+    // neues Document zu Firestore hinzufügen, das T2S Cloud Function triggered
     return _audioCollection
         .add({
           'text': text,
           'title': title,
           'category': cat,
-          'filepath': firestore_filepath
+          'filepath': firestore_filepath,
+          'language': lang,
+          'ssmlGender': gender
         })
         .then((value) => print("Text Added"))
         .catchError((error) => print("Failed to add text: $error"));
@@ -219,20 +196,19 @@ class _CreateScreenState extends State<CreateScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 24.0,
+                height: 32.0,
                 width: double.infinity,
               ),
               Container(
                 height: 100.0,
-                child: usePDF
-                    ? Text(feedback)
-                    : Image.file(_image),
+                child: usePDF ? Center(child: Text(feedback)) : Image.file(_image),
               ),
               SizedBox(
                 height: 24.0,
                 width: double.infinity,
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
                     children: [
@@ -317,16 +293,70 @@ class _CreateScreenState extends State<CreateScreen> {
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter a category for the audiofile'),
               ),
+              /*TextField(
+                textAlign: TextAlign.center,
+                onChanged: (lang) {
+                  audiofileLanguage = lang;
+                },
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Language'),
+              ),*/
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  DropdownButton(
+                      value: audiofileLanguage,
+                      items: [
+                        DropdownMenuItem(
+                            child: Text("Deutsch"), value: "de-DE"),
+                        DropdownMenuItem(
+                          child: Text("English (US)"),
+                          value: "en-US",
+                        ),
+                        DropdownMenuItem(
+                          child: Text("English (GB)"),
+                          value: "en-GB",
+                        ),
+                        DropdownMenuItem(
+                          child: Text("English (AUS)"),
+                          value: "en-AUS",
+                        ),
+                        DropdownMenuItem(child: Text("French"), value: "fr-FR")
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          audiofileLanguage = value;
+                        });
+                      }),
+                  SizedBox(
+                    width: 16.0,
+                  ),
+                  DropdownButton(
+                      value: ssmlGender,
+                      items: [
+                        DropdownMenuItem(
+                            child: Text("Female"), value: "FEMALE"),
+                        DropdownMenuItem(
+                          child: Text("Male"),
+                          value: "MALE",
+                        )
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          ssmlGender = value;
+                        });
+                      }),
+                ],
+              ),
               SizedBox(
-                height: 36.0,
+                height: 16.0,
                 width: double.infinity,
               ),
               TextButton(
                   child: Text('Continue to the next step'),
                   onPressed: () async {
                     if (usePDF) {
-                      await addTextToFirestore(
-                          _pdfPath, audiofileTitle, audiofileCategory);
+                      await addTextToFirestore(_pdfPath, audiofileTitle,
+                          audiofileCategory, audiofileLanguage, ssmlGender);
                     } else {
                       await FirebaseFirestore.instance
                           .collection('users')
@@ -336,7 +366,9 @@ class _CreateScreenState extends State<CreateScreen> {
                         "title": audiofileTitle,
                         "filepath":
                             "audio/${loggedInUser.email}/$audiofileTitle.mp3",
-                        "category": audiofileCategory
+                        "category": audiofileCategory,
+                        "language": audiofileLanguage,
+                        "ssmlGender": ssmlGender
                       });
                       await uploadFile(
                           loggedInUser.email, _image.path, audiofileTitle);
