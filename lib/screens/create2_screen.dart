@@ -16,7 +16,7 @@ class Create2Screen extends StatefulWidget {
 class _Create2ScreenState extends State<Create2Screen> {
 
   final _auth = FirebaseAuth.instance;
-  User loggedInUser;
+  late User loggedInUser;
 
   @override
   void initState() {

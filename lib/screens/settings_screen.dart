@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
+import 'package:page_transition/page_transition.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String id = 'settings_screen';
@@ -11,7 +12,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   //Navigation bar variables
-  List pages = [AudioOverviewScreen.id, CreateScreen.id, SettingsScreen.id];
+  List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 2;
 
 
@@ -47,7 +48,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 5.0,
         currentIndex: selectedPage,
         onTap: (index) {
-          Navigator.pushNamed(context, pages[index]);
+          Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: pages[index]));
+          //Navigator.pushNamed(context, pages[index]);
         },
       ),
     );

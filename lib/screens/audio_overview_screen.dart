@@ -8,6 +8,7 @@ import 'package:text_to_speech/screens/create_screen.dart';
 import 'package:text_to_speech/screens/settings_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:page_transition/page_transition.dart';
 
 
 class AudioOverviewScreen extends StatefulWidget {
@@ -19,15 +20,17 @@ class AudioOverviewScreen extends StatefulWidget {
 
 class _AudioOverviewState extends State<AudioOverviewScreen> {
   // Navbar variables
-  List pages = [AudioOverviewScreen.id, CreateScreen.id, SettingsScreen.id];
+  List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 0;
 
   // Audioplayer
   AudioPlayer audioPlayer = AudioPlayer();
+  var position;
+  var duration;
 
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
-  User loggedInUser;
+  var loggedInUser;
 
   @override
   void initState() {
@@ -55,7 +58,16 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     if (result == 1) {
       print("playing audio was successfull!");
     }
+
+    audioPlayer.onDurationChanged.listen((Duration d) {
+      setState(() => duration = d);
+    });
+
+    audioPlayer.onAudioPositionChanged.listen((Duration  p) => {
+      setState(() => position = p)
+    });
   }
+
 
   Future<String> downloadAudio(String url, String title) async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -72,7 +84,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
       return downloadURL;
     } on firebase_core.FirebaseException catch (e) {
       print(e);
-      return null;
+      return "";
     }
   }
 
@@ -111,7 +123,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                       }
                       // Liste mit Titeln der Audiofiles
                       return ListView(
-                        children: snapshot.data.docs.map((document) {
+                        children: snapshot.data!.docs.map((document) {
                           return Center(
                             child: Container(
                               child: TextButton(
@@ -127,9 +139,12 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                     }),
               ),
             ),
+            const AudioSlider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                IconButton(icon: Icon(Icons.play_circle_outline, size: 48), onPressed: () { audioPlayer.resume();}),
+                SizedBox(width: 32.0,),
                 IconButton(icon: Icon(Icons.pause_circle_outline, size: 48), onPressed: () { audioPlayer.pause();}),
                 SizedBox(width: 32.0,),
                 IconButton(icon: Icon(Icons.stop_circle_outlined, size: 48,), onPressed: () { audioPlayer.stop();})
@@ -151,9 +166,40 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
         elevation: 5.0,
         currentIndex: selectedPage,
         onTap: (index) {
-          Navigator.pushNamed(context, pages[index]);
+          Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: pages[index]));
+          //Navigator.pushNamed(context, pages[index]);
         },
       ),
     );
   }
 }
+
+/// This is the stateful widget that the main application instantiates.
+class AudioSlider extends StatefulWidget {
+  const AudioSlider({Key? key}) : super(key: key);
+
+  @override
+  State<AudioSlider> createState() => _AudioSliderState();
+}
+
+/// This is the private State class that goes with AudioSlider.
+class _AudioSliderState extends State<AudioSlider> {
+  double _currentSliderValue = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      value: _currentSliderValue,
+      min: 0,
+      max: 100,
+      divisions: 5,
+      label: _currentSliderValue.round().toString(),
+      onChanged: (double value) {
+        setState(() {
+          _currentSliderValue = value;
+        });
+      },
+    );
+  }
+}
+

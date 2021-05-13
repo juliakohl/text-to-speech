@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
-import 'package:text_to_speech/screens/text_screen.dart';
+import 'package:text_to_speech/screens/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create2_screen.dart';
 
@@ -19,11 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final _pageOptions = [
     AudioOverviewScreen(),
     CreateScreen(),
-    TextScreen(),
+    SettingsScreen(),
   ];
 
   final _auth = FirebaseAuth.instance;
-  User loggedInUser;
+  late User loggedInUser;
 
   @override
   void initState() {
@@ -59,9 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
         body: _pageOptions[selectedPage],
         bottomNavigationBar: BottomNavigationBar(
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.headset, size: 30), title: Text('Audio')),
-            BottomNavigationBarItem(icon: Icon(Icons.add, size: 30), title: Text('Add New')),
-            BottomNavigationBarItem(icon: Icon(Icons.settings, size: 30), title: Text('Settings')),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.headset, size: 30), label: 'Audio'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.add, size: 30), label: 'Add New'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings, size: 30), label: 'Settings'),
           ],
           elevation: 5.0,
           currentIndex: selectedPage,

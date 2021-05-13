@@ -1,18 +1,7 @@
-import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart' as firebase_core;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as Path;
-import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:text_to_speech/constants.dart';
-
 
 String getMostCommonFont(text){
-  Map<String, int> counter = {};
+  Map<String, num?> counter = {};
   String fontName;
   String fontSize;
   String fontStyle;
@@ -31,18 +20,21 @@ String getMostCommonFont(text){
       if(counter[fontName+fontStyle+fontSize]==null){
         counter[fontName+fontStyle+fontSize] = 1;
       }else{
-        counter[fontName+fontStyle+fontSize] += 1;
+        if(counter[fontName+fontStyle+fontSize]!=null){
+          counter[fontName+fontStyle+fontSize] = counter[fontName+fontStyle+fontSize]! +1;
+        }
       }
     }
   }
-  print('Font: '+fontName+fontStyle+fontSize+' - count: '+counter[fontName+fontStyle+fontSize].toString());
+  //print('Font: '+fontName+fontStyle+fontSize+' - count: '+counter[fontName+fontStyle+fontSize].toString());
 
   var keys = counter.keys;
   var max = keys.elementAt(0);
   var i;
 
   for (i = 1; i < keys.length; i++) {
-    var value = counter[keys.elementAt(i)];
+    var value;
+    value = counter[keys.elementAt(i)];
     if (value > counter[max]) max = keys.elementAt(i);
   }
 

@@ -6,13 +6,13 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
-import 'package:text_to_speech/screens/create2_screen.dart';
 import 'package:text_to_speech/screens/settings_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:text_to_speech/constants.dart';
 import 'package:text_to_speech/pdf_processing.dart';
+import 'package:page_transition/page_transition.dart';
 
 class CreateScreen extends StatefulWidget {
   static const String id = 'create_screen';
@@ -23,15 +23,15 @@ class CreateScreen extends StatefulWidget {
 
 class _CreateScreenState extends State<CreateScreen> {
   //Navigation bar variables
-  List pages = [AudioOverviewScreen.id, CreateScreen.id, SettingsScreen.id];
+  List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 1;
 
   // Image & PDF variables
   var usePDF = true;
   var feedback = 'Nothing uploaded yet ...';
-  File _image;
+  var _image;
   final picker = ImagePicker();
-  String _pdfPath;
+  var _pdfPath;
 
   // Audio File variables
   String audiofileTitle = "audiofile";
@@ -42,7 +42,7 @@ class _CreateScreenState extends State<CreateScreen> {
   //Firebase variables
   final _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  User loggedInUser;
+  var loggedInUser;
 
   // access the users camera and save the image file to _image
   Future takeImage() async {
@@ -117,10 +117,10 @@ class _CreateScreenState extends State<CreateScreen> {
   // upload a pdf to the users folder in the pdf firebase storage bucket
   Future<void> processPDF() async {
     FilePickerResult _result =
-        await FilePicker.platform.pickFiles(type: FileType.any);
+        (await FilePicker.platform.pickFiles(type: FileType.any))!;
 
     if (_result != null) {
-      String filepath = _result.files.single.path;
+      String filepath = _result.files.single.path!;
       _pdfPath = filepath;
 
       var tmp_array = _pdfPath.split("/");
@@ -324,7 +324,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       ],
                       onChanged: (value) {
                         setState(() {
-                          audiofileLanguage = value;
+                          audiofileLanguage = value.toString();
                         });
                       }),
                   SizedBox(
@@ -342,7 +342,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       ],
                       onChanged: (value) {
                         setState(() {
-                          ssmlGender = value;
+                          ssmlGender = value.toString();
                         });
                       }),
                 ],
@@ -371,9 +371,10 @@ class _CreateScreenState extends State<CreateScreen> {
                         "ssmlGender": ssmlGender
                       });
                       await uploadFile(
-                          loggedInUser.email, _image.path, audiofileTitle);
+                          loggedInUser.email!, _image.path, audiofileTitle);
                     }
-                    Navigator.pushNamed(context, AudioOverviewScreen.id);
+                    Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: AudioOverviewScreen()));
+                    //Navigator.pushNamed(context, AudioOverviewScreen.id);
                   }),
             ],
           ),
@@ -390,7 +391,8 @@ class _CreateScreenState extends State<CreateScreen> {
           elevation: 5.0,
           currentIndex: selectedPage,
           onTap: (index) {
-            Navigator.pushNamed(context, pages[index]);
+            Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: pages[index]));
+            //Navigator.pushNamed(context, pages[index]);
           },
         ));
   }
