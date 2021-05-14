@@ -1,6 +1,6 @@
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
-String getMostCommonFont(text){
+String getMostCommonFont(text, differStyle){
   Map<String, num?> counter = {};
   String fontName;
   String fontSize;
@@ -14,9 +14,13 @@ String getMostCommonFont(text){
       fontName = wordCollection[j].fontName;
       //Get the font size.
       fontSize = wordCollection[j].fontSize.toString();
-      //Get the font style.
-      fontStyle = wordCollection[j].fontStyle.toString();
-
+      //If differStyle get the font style.
+      if(differStyle){
+        fontStyle = wordCollection[j].fontStyle.toString();
+      } else {
+        fontStyle = "";
+      }
+      // increase counter for current font
       if(counter[fontName+fontStyle+fontSize]==null){
         counter[fontName+fontStyle+fontSize] = 1;
       }else{
@@ -41,8 +45,9 @@ String getMostCommonFont(text){
   return max;
 }
 
-String reduceTextToCommonFont(result) {
-  var commonFont = getMostCommonFont(result);
+String reduceTextToCommonFont(result, differStyle) {
+  // calculate the most common font
+  var commonFont = getMostCommonFont(result, differStyle);
   print('most common font: '+commonFont);
 
   String text = "";
@@ -57,17 +62,21 @@ String reduceTextToCommonFont(result) {
       fontName = wordCollection[j].fontName;
       //Get the font size.
       fontSize = wordCollection[j].fontSize.toString();
-      //Get the font style.
-      fontStyle = wordCollection[j].fontStyle.toString();
-
+      //If differStyle get font style
+      if(differStyle){
+        fontStyle = wordCollection[j].fontStyle.toString();
+      } else {
+        fontStyle = "";
+      }
+      // if current font == most common font, add to text
       if(fontName+fontStyle+fontSize == commonFont){
         text += wordCollection[j].text;
       }else{
         continue;
       }
     }
-    text += " ";
+    text += " "; // add space at the end of the line
   }
-  return text;
+  return text; // return common font text
 }
 

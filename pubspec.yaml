@@ -37,6 +37,9 @@ dependencies:
   cloud_firestore: ^1.0.7
   audioplayers: ^0.18.3
   page_transition: ^2.0.2
+  assets_audio_player: ^3.0.3+3
+  audio_service: ^0.17.0
+  just_audio: ^0.7.4+1
 
 dev_dependencies:
   flutter_test:

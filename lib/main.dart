@@ -10,7 +10,6 @@ import 'package:text_to_speech/screens/registration_screen.dart';
 import 'package:text_to_speech/screens/home_screen.dart';
 
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

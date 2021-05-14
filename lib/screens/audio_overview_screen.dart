@@ -6,10 +6,10 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
 import 'package:text_to_speech/screens/settings_screen.dart';
-import 'package:audioplayers/audioplayers.dart';
+//import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:page_transition/page_transition.dart';
-
+import 'package:assets_audio_player/assets_audio_player.dart';
 
 class AudioOverviewScreen extends StatefulWidget {
   static const String id = 'audio_overview_screen';
@@ -24,9 +24,8 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   int selectedPage = 0;
 
   // Audioplayer
-  AudioPlayer audioPlayer = AudioPlayer();
-  var position;
-  var duration;
+  //AudioPlayer audioPlayer = AudioPlayer();
+  final assetsAudioPlayer = AssetsAudioPlayer();
 
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
@@ -54,20 +53,22 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   void play(String url, String title) async {
     String audiofileURL = await downloadAudio(url, title);
 
-    int result = await audioPlayer.play(audiofileURL);
+    /*int result = await audioPlayer.play(audiofileURL);
     if (result == 1) {
-      print("playing audio was successfull!");
+      print("playing audio was successful!");
+    }*/
+
+    try {
+      await assetsAudioPlayer.open(
+        Audio.network(audiofileURL),
+        showNotification: true,
+        headPhoneStrategy: HeadPhoneStrategy.pauseOnUnplug,
+      );
+    } catch (t) {
+      print(t);
     }
 
-    audioPlayer.onDurationChanged.listen((Duration d) {
-      setState(() => duration = d);
-    });
-
-    audioPlayer.onAudioPositionChanged.listen((Duration  p) => {
-      setState(() => position = p)
-    });
   }
-
 
   Future<String> downloadAudio(String url, String title) async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -77,7 +78,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
 
     try {
       String downloadURL = await firebase_storage.FirebaseStorage.instanceFor(
-          bucket: 'text-to-speech-312509-audio')
+              bucket: 'text-to-speech-312509-audio')
           .ref(url)
           .getDownloadURL();
       print("finished download clause");
@@ -88,89 +89,137 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('In Sono'),
-      ),
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 48.0,
-              width: double.infinity,
-            ),
-            Expanded(
-              child: SizedBox(
-                height: 300.0,
-                child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(loggedInUser.email)
-                        .collection('audio')
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      // spinner wenn keine Daten existieren / noch nicht geladen sind
-                      if (!snapshot.hasData) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      // Liste mit Titeln der Audiofiles
-                      return ListView(
-                        children: snapshot.data!.docs.map((document) {
-                          return Center(
-                            child: Container(
-                              child: TextButton(
-                                child: Text(document["title"]),
-                                onPressed: () async {
-                                  play(document["filepath"], document["title"]);
-                                },
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    }),
-              ),
-            ),
-            const AudioSlider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(icon: Icon(Icons.play_circle_outline, size: 48), onPressed: () { audioPlayer.resume();}),
-                SizedBox(width: 32.0,),
-                IconButton(icon: Icon(Icons.pause_circle_outline, size: 48), onPressed: () { audioPlayer.pause();}),
-                SizedBox(width: 32.0,),
-                IconButton(icon: Icon(Icons.stop_circle_outlined, size: 48,), onPressed: () { audioPlayer.stop();})
-              ],
-            ),
-            SizedBox(height: 24.0),
-          ],
+        appBar: AppBar(
+          title: Text('In Sono'),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.headset, size: 30), label: 'Audio'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add, size: 30), label: 'Add New'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings, size: 30), label: 'Settings'),
-        ],
-        elevation: 5.0,
-        currentIndex: selectedPage,
-        onTap: (index) {
-          Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: pages[index]));
-          //Navigator.pushNamed(context, pages[index]);
-        },
-      ),
-    );
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                height: 32.0,
+                width: double.infinity,
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 300.0,
+                  child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(loggedInUser.email)
+                          .collection('audio')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        // spinner wenn keine Daten existieren / noch nicht geladen sind
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        // Liste mit Titeln der Audiofiles
+                        return ListView(
+                          children: snapshot.data!.docs.map((document) {
+                            return Center(
+                              child: Container(
+                                child: TextButton(
+                                  child: Text(document["category"]+': '+document["title"], style: TextStyle(color: Colors.tealAccent),),
+                                  onPressed: () async {
+                                    play(document["filepath"],
+                                        document["title"]);
+                                  },
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                ),
+              ),
+              const AudioSlider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                      icon: Icon(
+                        Icons.fast_rewind_outlined,
+                        size: 48,
+                      ),
+                      onPressed: () {
+                        assetsAudioPlayer.forwardOrRewind(-1.5);
+                        //audioPlayer.stop();
+                      }),
+                  SizedBox(
+                    width: 24.0,
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.play_circle_outline, size: 48),
+                      onPressed: () {
+                        assetsAudioPlayer.play();
+                      }),
+                  SizedBox(
+                    width: 24.0,
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.pause_circle_outline, size: 48),
+                      onPressed: () {
+                        assetsAudioPlayer.pause();
+                        //audioPlayer.pause();
+                      }),
+                  SizedBox(
+                    width: 24.0,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.stop_circle_outlined,
+                        size: 48,
+                      ),
+                      onPressed: () {
+                        assetsAudioPlayer.stop();
+                        //audioPlayer.stop();
+                      }),
+                  SizedBox(
+                    width: 24.0,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.fast_forward_outlined,
+                        size: 48,
+                      ),
+                      onPressed: () {
+                        assetsAudioPlayer.forwardOrRewind(1.5);
+                        //audioPlayer.stop();
+                      })
+                ],
+              ),
+              SizedBox(height: 24.0),
+            ],
+          ),
+        ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.headset, size: 30), label: 'Audio'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.add, size: 30), label: 'Add New'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.settings, size: 30), label: 'Settings'),
+            ],
+            elevation: 5.0,
+            currentIndex: selectedPage,
+            onTap: (index) {
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.fade, child: pages[index]));
+              //Navigator.pushNamed(context, pages[index]);
+            },
+          ),
+        );
   }
 }
 
@@ -186,13 +235,18 @@ class AudioSlider extends StatefulWidget {
 class _AudioSliderState extends State<AudioSlider> {
   double _currentSliderValue = 20;
 
+  set sliderValue(double value) {
+    _currentSliderValue = value;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Slider(
       value: _currentSliderValue,
       min: 0,
       max: 100,
-      divisions: 5,
+      divisions: 10,
       label: _currentSliderValue.round().toString(),
       onChanged: (double value) {
         setState(() {
@@ -202,4 +256,3 @@ class _AudioSliderState extends State<AudioSlider> {
     );
   }
 }
-
