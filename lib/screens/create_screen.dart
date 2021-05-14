@@ -377,23 +377,26 @@ class _CreateScreenState extends State<CreateScreen> {
                         .leading, //  <-- leading Checkbox
                   ),
                   SizedBox(
-                    height: 32.0,
+                    height: 16.0,
                     width: double.infinity,
                   ),
-                  CheckboxListTile(
-                    title: Text("Differ between font style"),
-                    subtitle: Text("Do you want to differ between regular, bold and italic for the calculation of the most common font?", style: TextStyle(fontSize: 11),),
-                    value: differStyle,
-                    onChanged: (newValue) {
-                      setState(() {
-                        differStyle = newValue!;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity
-                        .leading, //  <-- leading Checkbox
+                  Visibility(
+                    visible: onlyMostCommonFont,
+                    child: CheckboxListTile(
+                      title: Text("Differ between font style"),
+                      subtitle: Text("Do you want to differ between regular, bold and italic for the calculation of the most common font?", style: TextStyle(fontSize: 11),),
+                      value: differStyle,
+                      onChanged: (newValue) {
+                        setState(() {
+                          differStyle = newValue!;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
+                    ),
                   ),
                   SizedBox(
-                    height: 32.0,
+                    height: 24.0,
                     width: double.infinity,
                   ),
                   TextButton(

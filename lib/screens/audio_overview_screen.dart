@@ -6,10 +6,11 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
 import 'package:text_to_speech/screens/settings_screen.dart';
-//import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:text_to_speech/constants.dart';
 
 class AudioOverviewScreen extends StatefulWidget {
   static const String id = 'audio_overview_screen';
@@ -31,6 +32,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   final _auth = FirebaseAuth.instance;
   var loggedInUser;
 
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +49,36 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void download(String url, String title) async {
+    String audiofileURL = await downloadAudio(url, title);
+    Directory appDocDir = await getTemporaryDirectory();//getApplicationDocumentsDirectory();
+    print(appDocDir.path+" downloadURL: "+audiofileURL);
+    File downloadToFile = File('${appDocDir.path}/$title.mp3');
+
+      try {
+        await firebase_storage.FirebaseStorage.instanceFor(
+            bucket: 'text-to-speech-312509-audio')
+            .ref(url)
+            .writeToFile(downloadToFile);
+      } on firebase_core.FirebaseException catch (e) {
+        print(e);
+      }
+
+/*
+    try {
+      final task = await FlutterDownloader.enqueue(
+        url: audiofileURL,
+        savedDir: '${appDocDir.path}',
+        showNotification: true, // show download progress in status bar (for Android)
+        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+      );
+    } catch (e) {
+      print(e);
+    }
+    */
+    //final tasks = await FlutterDownloader.loadTasks();
   }
 
   // mp3 von cloud storage url abspielen
@@ -124,16 +156,43 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                         // Liste mit Titeln der Audiofiles
                         return ListView(
                           children: snapshot.data!.docs.map((document) {
-                            return Center(
-                              child: Container(
-                                child: TextButton(
-                                  child: Text(document["category"]+': '+document["title"], style: TextStyle(color: Colors.tealAccent),),
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 32.0,),
+                                Expanded(
+                                  child: TextButton(
+                                    style: ButtonStyle(
+                                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                            (Set<MaterialState> states) {
+                                          if (states.contains(MaterialState.pressed))
+                                            return Theme.of(context).colorScheme.primary.withOpacity(0.5);
+                                          return Colors.black12; // Use the component's default.
+                                        },
+                                      ),
+                                    ),
+                                  child: Text(document["category"]+': '+document["title"], style: kSendButtonTextStyle,),
                                   onPressed: () async {
                                     play(document["filepath"],
                                         document["title"]);
                                   },
-                                ),
                               ),
+                                ),
+                                SizedBox(width: 32.0,),
+                                InkWell(
+                                    child: Icon(Icons.open_in_new),
+                                    onTap: () async {
+                                      var link = await downloadAudio(document["filepath"], document["title"]);
+                                      launch(link);
+                                    }
+                                ),
+                                SizedBox(width: 32.0,),
+                                /*
+                              IconButton(icon: Icon(Icons.download_rounded), onPressed: () async {
+                                download(document["filepath"],document["title"]);
+                                print("Download icon clicked");
+                              },)*/
+                            ]
                             );
                           }).toList(),
                         );

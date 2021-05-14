@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 const kSendButtonTextStyle = TextStyle(
   color: Colors.tealAccent,
-  fontWeight: FontWeight.bold,
-  fontSize: 18.0,
+  //fontWeight: FontWeight.bold,
+  fontSize: 16.0,
 );
 
 const kMessageTextFieldDecoration = InputDecoration(

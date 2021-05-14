@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:text_to_speech/screens/welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String id = 'settings_screen';
@@ -11,9 +13,36 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+
+  final _auth = FirebaseAuth.instance;
+  //FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  var loggedInUser;
+
+
   //Navigation bar variables
   List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 2;
+
+  @override
+  void initState() {
+    super.initState();
+
+    //get the current user from firebase auth
+    getCurrentUser();
+  }
+
+  // retrieve the current user from firebase auth
+  void getCurrentUser() {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        loggedInUser = user;
+        print(loggedInUser.email);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
 
   @override
@@ -32,6 +61,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: double.infinity,
             ),
             Text('Settings'),
+            IconButton(icon: Icon(Icons.logout), onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushNamed(context, WelcomeScreen.id);
+            })
           ],
         ),
       ),
