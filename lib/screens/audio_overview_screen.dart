@@ -20,6 +20,7 @@ class AudioOverviewScreen extends StatefulWidget {
 }
 
 class _AudioOverviewState extends State<AudioOverviewScreen> {
+
   // Navbar variables
   List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 0;
@@ -179,14 +180,17 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                               ),
                                 ),
                                 SizedBox(width: 32.0,),
-                                InkWell(
+                                (Platform.operatingSystem != "ios") ?
+                                InkWell( //only for android devices
                                     child: Icon(Icons.open_in_new),
                                     onTap: () async {
                                       var link = await downloadAudio(document["filepath"], document["title"]);
                                       launch(link);
                                     }
-                                ),
-                                SizedBox(width: 32.0,),
+                                ) :
+                                SizedBox(width: 0,),
+                                (Platform.operatingSystem != "ios") ?
+                                SizedBox(width: 32.0,) : SizedBox(width: 0,)
                                 /*
                               IconButton(icon: Icon(Icons.download_rounded), onPressed: () async {
                                 download(document["filepath"],document["title"]);
@@ -202,7 +206,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
               const AudioSlider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: [ //TODO adjust other iconbuttons to assets audioplayer
                   IconButton(
                       icon: Icon(
                         Icons.fast_rewind_outlined,

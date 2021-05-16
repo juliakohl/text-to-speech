@@ -330,7 +330,7 @@ class _CreateScreenState extends State<CreateScreen> {
                             ),
                             DropdownMenuItem(
                               child: Text("English (AUS)"),
-                              value: "en-AUS",
+                              value: "en-AU",
                             ),
                             DropdownMenuItem(
                                 child: Text("French"), value: "fr-FR")
