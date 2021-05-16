@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "587608614942",
-    "project_id": "text-to-speech-312509",
-    "storage_bucket": "text-to-speech-312509.appspot.com"
+    "project_number": "...",
+    "project_id": "...",
+    "storage_bucket": "..."
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:587608614942:android:43dbecfd03ef9de050660f",
+        "mobilesdk_app_id": "...",
         "android_client_info": {
           "package_name": "com.juliakohl.text_to_speech"
         }
       },
       "oauth_client": [
         {
-          "client_id": "587608614942-p53jmdpir9pqmpn3gg6uuk8nl2quuked.apps.googleusercontent.com",
+          "client_id": "...",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBLdWn9HwGgcDCavRYTf_48MljLb6Qj648"
+          "current_key": "..."
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "587608614942-p53jmdpir9pqmpn3gg6uuk8nl2quuked.apps.googleusercontent.com",
+              "client_id": "...",
               "client_type": 3
             }
           ]
