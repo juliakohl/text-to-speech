@@ -89,7 +89,10 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
 
     try {
       await assetsAudioPlayer.open(
-        Audio.network(audiofileURL),
+        Audio.network(audiofileURL, metas: Metas(
+          title:  title,
+        ),
+        ),
         showNotification: true,
         headPhoneStrategy: HeadPhoneStrategy.pauseOnUnplug,
       );
@@ -272,7 +275,6 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                           speed += 0.1;
                         });
                         assetsAudioPlayer.forwardOrRewind(speed);
-                        //audioPlayer.stop();
                       })
                 ],
               ),
