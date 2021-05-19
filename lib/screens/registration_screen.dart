@@ -59,7 +59,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 24.0,
             ),
             TextButton(
-              child: Text('Register'),
+              child: Text('Register', style: kSendButtonTextStyle,),
               onPressed: () async {
                 // TODO: add firebase registration
                 try{

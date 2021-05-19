@@ -28,6 +28,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   // Audioplayer
   //AudioPlayer audioPlayer = AudioPlayer();
   final assetsAudioPlayer = AssetsAudioPlayer();
+  var speed = 1.0;
 
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
@@ -85,11 +86,6 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   // mp3 von cloud storage url abspielen
   void play(String url, String title) async {
     String audiofileURL = await downloadAudio(url, title);
-
-    /*int result = await audioPlayer.play(audiofileURL);
-    if (result == 1) {
-      print("playing audio was successful!");
-    }*/
 
     try {
       await assetsAudioPlayer.open(
@@ -160,7 +156,15 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                             return Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(width: 32.0,),
+                                SizedBox(width: 24.0,),
+                                TextButton(
+                                    onPressed: () async {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) => _buildPopupDialog(context, document.id, loggedInUser.email),
+                                      );
+                                    },
+                                    child: Icon(Icons.delete_forever, color: Color(0xff73e2a7),)),
                                 Expanded(
                                   child: TextButton(
                                     style: ButtonStyle(
@@ -179,7 +183,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                                   },
                               ),
                                 ),
-                                SizedBox(width: 32.0,),
+                                SizedBox(width: 24.0,),
                                 (Platform.operatingSystem != "ios") ?
                                 InkWell( //only for android devices
                                     child: Icon(Icons.open_in_new),
@@ -190,7 +194,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                                 ) :
                                 SizedBox(width: 0,),
                                 (Platform.operatingSystem != "ios") ?
-                                SizedBox(width: 32.0,) : SizedBox(width: 0,)
+                                SizedBox(width: 24.0,) : SizedBox(width: 0,)
                                 /*
                               IconButton(icon: Icon(Icons.download_rounded), onPressed: () async {
                                 download(document["filepath"],document["title"]);
@@ -203,17 +207,21 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                       }),
                 ),
               ),
-              const AudioSlider(),
+              //const AudioSlider(),
+              Text('SpeakingRate: '+speed.toString().substring(0,3)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [ //TODO adjust other iconbuttons to assets audioplayer
+                children: [
                   IconButton(
                       icon: Icon(
                         Icons.fast_rewind_outlined,
                         size: 48,
                       ),
                       onPressed: () {
-                        assetsAudioPlayer.forwardOrRewind(-1.5);
+                        setState(() {
+                          speed -= 0.1;
+                        });
+                        assetsAudioPlayer.forwardOrRewind(speed);
                         //audioPlayer.stop();
                       }),
                   SizedBox(
@@ -222,6 +230,9 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                   IconButton(
                       icon: Icon(Icons.play_circle_outline, size: 48),
                       onPressed: () {
+                        setState(() {
+                          speed = 1.0;
+                        });
                         assetsAudioPlayer.play();
                       }),
                   SizedBox(
@@ -242,6 +253,9 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                         size: 48,
                       ),
                       onPressed: () {
+                        setState(() {
+                          speed = 1.0;
+                        });
                         assetsAudioPlayer.stop();
                         //audioPlayer.stop();
                       }),
@@ -254,7 +268,10 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                         size: 48,
                       ),
                       onPressed: () {
-                        assetsAudioPlayer.forwardOrRewind(1.5);
+                        setState(() {
+                          speed += 0.1;
+                        });
+                        assetsAudioPlayer.forwardOrRewind(speed);
                         //audioPlayer.stop();
                       })
                 ],
@@ -318,4 +335,36 @@ class _AudioSliderState extends State<AudioSlider> {
       },
     );
   }
+}
+
+Widget _buildPopupDialog(BuildContext context, String id, email) {
+  return new AlertDialog(
+    title: const Text('Do you really want to delete this file?'),
+    content: new Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("This action is final and can not be undone."),
+      ],
+    ),
+    actions: <Widget>[
+      new TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Oops, no!'),
+      ),
+      new TextButton(
+        onPressed: () async {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(email)
+              .collection('audio')
+              .doc(id).delete();
+          Navigator.of(context).pop();
+        },
+        child: const Text('Yes, delete!'),
+      ),
+    ],
+  );
 }

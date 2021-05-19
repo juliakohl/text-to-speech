@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 24.0,
             ),
             TextButton(
-              child: Text('Log In'),
+              child: Text('Log In', style: kSendButtonTextStyle,),
               onPressed: () async {
                 // TODO: add firebase log in
                 try {

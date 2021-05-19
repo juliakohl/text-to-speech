@@ -6,20 +6,22 @@ String getMostCommonFont(text, differStyle){
   String fontSize;
   String fontStyle;
 
-  //Draw rectangle.
   for (int i = 0; i < text.length; i++) {
     List<TextWord> wordCollection = text[i].wordCollection;
+
     for (int j = 0; j < wordCollection.length; j++) {
+
       //Get the font name.
       fontName = wordCollection[j].fontName;
+
       //Get the font size.
       fontSize = wordCollection[j].fontSize.toString();
-      //If differStyle get the font style.
+
+      //If differStyle -> get the font style.
       if(differStyle){
         fontStyle = wordCollection[j].fontStyle.toString();
-      } else {
-        fontStyle = "";
-      }
+      } else { fontStyle = "";}
+
       // increase counter for current font
       if(counter[fontName+fontStyle+fontSize]==null){
         counter[fontName+fontStyle+fontSize] = 1;
@@ -30,19 +32,17 @@ String getMostCommonFont(text, differStyle){
       }
     }
   }
-  //print('Font: '+fontName+fontStyle+fontSize+' - count: '+counter[fontName+fontStyle+fontSize].toString());
 
-  var keys = counter.keys;
-  var max = keys.elementAt(0);
+  var keys = counter.keys; // fonts
+  var max = keys.elementAt(0); // most common font
   var i;
 
-  for (i = 1; i < keys.length; i++) {
+  for (i = 1; i < keys.length; i++) { // foreach font
     var value;
-    value = counter[keys.elementAt(i)];
-    if (value > counter[max]) max = keys.elementAt(i);
+    value = counter[keys.elementAt(i)]; // count for current font
+    if (value > counter[max]) max = keys.elementAt(i); // if font > current most common font -> max = value
   }
-
-  return max;
+  return max; // return most common font
 }
 
 String reduceTextToCommonFont(result, differStyle) {
@@ -62,7 +62,7 @@ String reduceTextToCommonFont(result, differStyle) {
       fontName = wordCollection[j].fontName;
       //Get the font size.
       fontSize = wordCollection[j].fontSize.toString();
-      //If differStyle get font style
+      //If differStyle -> get font style
       if(differStyle){
         fontStyle = wordCollection[j].fontStyle.toString();
       } else {

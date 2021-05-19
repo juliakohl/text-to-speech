@@ -60,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 200.0,
               width: double.infinity,
             ),
-            Text('Settings'),
+            Text('Log Out'),
             IconButton(icon: Icon(Icons.logout), onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pushNamed(context, WelcomeScreen.id);

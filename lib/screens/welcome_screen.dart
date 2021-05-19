@@ -2,6 +2,7 @@ import 'package:text_to_speech/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
+import 'package:text_to_speech/constants.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String id = 'welcome_screen';
@@ -69,13 +70,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               height: 48.0,
             ),
             TextButton(
-              child: Text('Log In'),
+              child: Text('Log In', style: kSendButtonTextStyle,),
               onPressed: () {
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
             TextButton(
-                child: Text('Register'),
+                child: Text('Register', style: kSendButtonTextStyle,),
                 onPressed: () {
                   Navigator.pushNamed(context, RegistrationScreen.id);
                 })
