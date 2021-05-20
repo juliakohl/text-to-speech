@@ -20,6 +20,7 @@ class InSono extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(accentColor: Color(0xff73e2a7), buttonColor: Color(0xff73e2a7), toggleableActiveColor: Color(0xff73e2a7)),
       initialRoute: WelcomeScreen.id,
       routes: {

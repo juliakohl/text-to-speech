@@ -20,64 +20,73 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Hero(
-              tag: 'logo',
-              child: Container(
-                height: 200.0,
-                child: Image.asset('images/logo.png'),
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.4), BlendMode.dstATop),
+                image: AssetImage("images/bw.jpg"),
+                fit: BoxFit.cover)
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Hero(
+                tag: 'logo',
+                child: Container(
+                  height: 200.0,
+                  child: Image.asset('images/logo.png'),
+                ),
               ),
-            ),
-            SizedBox(
-              height: 48.0,
-            ),
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              textAlign: TextAlign.center,
-              onChanged: (value) {
-                email = value;
-              },
-              decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
-            ),
-            SizedBox(
-              height: 8.0,
-            ),
-            TextField(
-              obscureText: true,
-              textAlign: TextAlign.center,
-              onChanged: (value) {
-                password = value;
-              },
-              decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
-            ),
-            SizedBox(
-              height: 24.0,
-            ),
-            TextButton(
-              child: Text('Register', style: kSendButtonTextStyle,),
-              onPressed: () async {
-                // TODO: add firebase registration
-                try{
-                  final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-                  // add a new document for the user in firestore
-                  FirebaseFirestore.instance.collection('users').doc(email).set({"since": DateTime.now()});
+              SizedBox(
+                height: 48.0,
+              ),
+              TextField(
+                keyboardType: TextInputType.emailAddress,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  email = value;
+                },
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+              ),
+              SizedBox(
+                height: 8.0,
+              ),
+              TextField(
+                obscureText: true,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  password = value;
+                },
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
+              ),
+              SizedBox(
+                height: 24.0,
+              ),
+              TextButton(
+                child: Text('Register', style: kSendButtonTextStyle,),
+                onPressed: () async {
+                  // TODO: add firebase registration
+                  try{
+                    final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+                    // add a new document for the user in firestore
+                    FirebaseFirestore.instance.collection('users').doc(email).set({"since": DateTime.now()});
 
-                  if(newUser!=null){
-                    Navigator.pushNamed(context, CreateScreen.id);
+                    if(newUser!=null){
+                      Navigator.pushNamed(context, CreateScreen.id);
+                    }
+                  }catch(e){
+                    print(e);
                   }
-                }catch(e){
-                  print(e);
-                }
-                print(email);
-                print(password);
-              },
-            ),
-          ],
+                  print(email);
+                  print(password);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

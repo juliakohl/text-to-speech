@@ -41,6 +41,7 @@ class _CreateScreenState extends State<CreateScreen> {
   String ssmlGender = "MALE";
   bool onlyMostCommonFont = false;
   bool differStyle = false;
+  bool excludeBrackets = false;
 
   //Firebase variables
   final _auth = FirebaseAuth.instance;
@@ -164,6 +165,10 @@ class _CreateScreenState extends State<CreateScreen> {
     } else {
       text = extractor.extractText();
     }
+
+    //if(excludeBrackets){
+      text = excludeTextInBrackets(text);
+    //}
 
     document.dispose();
 
@@ -363,6 +368,18 @@ class _CreateScreenState extends State<CreateScreen> {
                   SizedBox(
                     height: 32.0,
                     width: double.infinity,
+                  ),
+                  CheckboxListTile(
+                    title: Text("Exclude text in brackets"),
+                    subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
+                    value: excludeBrackets,
+                    onChanged: (newValue) {
+                      setState(() {
+                        excludeBrackets = newValue!;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity
+                        .leading, //  <-- leading Checkbox
                   ),
                   CheckboxListTile(
                     title: Text("Only use most common font"),
