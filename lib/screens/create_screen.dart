@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
-//import 'package:path/path.dart' as Path;
 import 'package:text_to_speech/screens/audio_overview_screen.dart';
 import 'package:text_to_speech/screens/settings_screen.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,7 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:text_to_speech/constants.dart';
 import 'package:text_to_speech/pdf_processing.dart';
 import 'package:page_transition/page_transition.dart';
-//import 'package:audio_service/audio_service.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class CreateScreen extends StatefulWidget {
   static const String id = 'create_screen';
@@ -23,6 +22,9 @@ class CreateScreen extends StatefulWidget {
 }
 
 class _CreateScreenState extends State<CreateScreen> {
+  // spinner
+  bool showSpinner = false;
+
   //Navigation bar variables
   List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 1;
@@ -200,260 +202,269 @@ class _CreateScreenState extends State<CreateScreen> {
         appBar: AppBar(
           title: Text('In Sono'),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    height: 32.0,
-                    width: double.infinity,
-                  ),
-                  Container(
-                    height: 100.0,
-                    child: usePDF
-                        ? Center(child: Text(feedback))
-                        : Image.file(_image),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                    width: double.infinity,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          IconButton(
+        body: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 32.0,
+                      width: double.infinity,
+                    ),
+                    Container(
+                      height: 100.0,
+                      child: usePDF
+                          ? Center(child: Text(feedback))
+                          : Image.file(_image),
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                      width: double.infinity,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            IconButton(
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                ),
+                                tooltip:
+                                    'You can use your camera to scan any text you have in front of you.',
+                                onPressed: () {
+                                  takeImage();
+                                }),
+                            Text(
+                              'Take a photo',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          width: 24.0,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
                               icon: const Icon(
-                                Icons.camera_alt,
+                                Icons.file_upload,
                                 color: Colors.white,
                               ),
                               tooltip:
-                                  'You can use your camera to scan any text you have in front of you.',
+                                  'You can upload an image as a text source. Language can not be changed for images. Default is set to German',
                               onPressed: () {
-                                takeImage();
-                              }),
-                          Text(
-                            'Take a photo',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 24.0,
-                      ),
-                      Column(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.file_upload,
-                              color: Colors.white,
+                                getImage();
+                              },
                             ),
-                            tooltip:
-                                'You can upload an image as a text source. Language can not be changed for images. Default is set to German',
-                            onPressed: () {
-                              getImage();
-                            },
-                          ),
-                          Text(
-                            'Upload image\nfrom gallery',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 24.0,
-                      ),
-                      Column(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.picture_as_pdf,
-                              color: Colors.white,
+                            Text(
+                              'Upload image\nfrom gallery',
+                              style: TextStyle(color: Colors.white),
                             ),
-                            tooltip:
-                                'You can choose a pdf file to convert its text to audio.',
-                            onPressed: () async {
-                              await processPDF();
-                              //Navigator.pushNamed(context, Create2Screen.id);
-                            },
-                          ),
-                          Text(
-                            'Choose a PDF',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 48.0,
-                  ),
-                  TextField(
-                    textAlign: TextAlign.center,
-                    onChanged: (title) {
-                      audiofileTitle = title;
-                    },
-                    decoration: kTextFieldDecoration.copyWith(
-                        hintText: 'Enter a title for the audiofile'),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                    width: double.infinity,
-                  ),
-                  TextField(
-                    textAlign: TextAlign.center,
-                    onChanged: (cat) {
-                      audiofileCategory = cat;
-                    },
-                    decoration: kTextFieldDecoration.copyWith(
-                        hintText: 'Enter a category for the audiofile'),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                    width: double.infinity,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      DropdownButton(
-                          value: audiofileLanguage,
-                          items: [
-                            DropdownMenuItem(
-                                child: Text("Deutsch"), value: "de-DE"),
-                            DropdownMenuItem(
-                              child: Text("English (US)"),
-                              value: "en-US",
-                            ),
-                            DropdownMenuItem(
-                              child: Text("English (GB)"),
-                              value: "en-GB",
-                            ),
-                            DropdownMenuItem(
-                              child: Text("English (AUS)"),
-                              value: "en-AU",
-                            ),
-                            DropdownMenuItem(
-                                child: Text("French"), value: "fr-FR")
                           ],
-                          onChanged: (value) {
-                            setState(() {
-                              audiofileLanguage = value.toString();
-                            });
-                          }),
-                      SizedBox(
-                        width: 16.0,
-                      ),
-                      DropdownButton(
-                          value: ssmlGender,
-                          items: [
-                            DropdownMenuItem(
-                                child: Text("Female"), value: "FEMALE"),
-                            DropdownMenuItem(
-                              child: Text("Male"),
-                              value: "MALE",
-                            )
+                        ),
+                        SizedBox(
+                          width: 24.0,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.picture_as_pdf,
+                                color: Colors.white,
+                              ),
+                              tooltip:
+                                  'You can choose a pdf file to convert its text to audio.',
+                              onPressed: () async {
+                                await processPDF();
+                                //Navigator.pushNamed(context, Create2Screen.id);
+                              },
+                            ),
+                            Text(
+                              'Choose a PDF',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ],
-                          onChanged: (value) {
-                            setState(() {
-                              ssmlGender = value.toString();
-                            });
-                          }),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 32.0,
-                    width: double.infinity,
-                  ),
-                  CheckboxListTile(
-                    title: Text("Exclude text in brackets"),
-                    subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
-                    value: excludeBrackets,
-                    onChanged: (newValue) {
-                      setState(() {
-                        excludeBrackets = newValue!;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity
-                        .leading, //  <-- leading Checkbox
-                  ),
-                  CheckboxListTile(
-                    title: Text("Only use most common font"),
-                    subtitle: Text("Selecting only the most common font (name, size and style) is a workaround for excluding unwanted text.", style: TextStyle(fontSize: 11),),
-                    value: onlyMostCommonFont,
-                    onChanged: (newValue) {
-                      setState(() {
-                        onlyMostCommonFont = newValue!;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity
-                        .leading, //  <-- leading Checkbox
-                  ),
-                  SizedBox(
-                    height: 16.0,
-                    width: double.infinity,
-                  ),
-                  Visibility(
-                    visible: onlyMostCommonFont,
-                    child: CheckboxListTile(
-                      title: Text("Differ between font style"),
-                      subtitle: Text("Do you want to differ between regular, bold and italic for the calculation of the most common font?", style: TextStyle(fontSize: 11),),
-                      value: differStyle,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 48.0,
+                    ),
+                    TextField(
+                      textAlign: TextAlign.center,
+                      onChanged: (title) {
+                        audiofileTitle = title;
+                      },
+                      decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Enter a title for the audiofile'),
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                      width: double.infinity,
+                    ),
+                    TextField(
+                      textAlign: TextAlign.center,
+                      onChanged: (cat) {
+                        audiofileCategory = cat;
+                      },
+                      decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Enter a category for the audiofile'),
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                      width: double.infinity,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DropdownButton(
+                            value: audiofileLanguage,
+                            items: [
+                              DropdownMenuItem(
+                                  child: Text("Deutsch"), value: "de-DE"),
+                              DropdownMenuItem(
+                                child: Text("English (US)"),
+                                value: "en-US",
+                              ),
+                              DropdownMenuItem(
+                                child: Text("English (GB)"),
+                                value: "en-GB",
+                              ),
+                              DropdownMenuItem(
+                                child: Text("English (AUS)"),
+                                value: "en-AU",
+                              ),
+                              DropdownMenuItem(
+                                  child: Text("French"), value: "fr-FR")
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                audiofileLanguage = value.toString();
+                              });
+                            }),
+                        SizedBox(
+                          width: 16.0,
+                        ),
+                        DropdownButton(
+                            value: ssmlGender,
+                            items: [
+                              DropdownMenuItem(
+                                  child: Text("Female"), value: "FEMALE"),
+                              DropdownMenuItem(
+                                child: Text("Male"),
+                                value: "MALE",
+                              )
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                ssmlGender = value.toString();
+                              });
+                            }),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 32.0,
+                      width: double.infinity,
+                    ),
+                    CheckboxListTile(
+                      title: Text("Exclude text in brackets"),
+                      subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
+                      value: excludeBrackets,
                       onChanged: (newValue) {
                         setState(() {
-                          differStyle = newValue!;
+                          excludeBrackets = newValue!;
                         });
                       },
                       controlAffinity: ListTileControlAffinity
                           .leading, //  <-- leading Checkbox
                     ),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                    width: double.infinity,
-                  ),
-                  TextButton(
-                      child: Text(
-                        'Continue 🎉',
-                        style: kSendButtonTextStyle,
-                      ),
-                      onPressed: () async {
-                        if (usePDF) {
-                          await addTextToFirestore(
-                              _pdfPath,
-                              audiofileTitle,
-                              audiofileCategory,
-                              audiofileLanguage,
-                              ssmlGender,
-                              onlyMostCommonFont);
-                        } else {
-                          await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(loggedInUser.email)
-                              .collection("audio")
-                              .add({
-                            "title": audiofileTitle,
-                            "filepath":
-                                "audio/${loggedInUser.email}/$audiofileTitle.mp3",
-                            "category": audiofileCategory,
-                            "language": audiofileLanguage,
-                            "ssmlGender": ssmlGender
+                    CheckboxListTile(
+                      title: Text("Only use most common font"),
+                      subtitle: Text("Selecting only the most common font (name, size and style) is a workaround for excluding unwanted text.", style: TextStyle(fontSize: 11),),
+                      value: onlyMostCommonFont,
+                      onChanged: (newValue) {
+                        setState(() {
+                          onlyMostCommonFont = newValue!;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
+                    ),
+                    SizedBox(
+                      height: 16.0,
+                      width: double.infinity,
+                    ),
+                    Visibility(
+                      visible: onlyMostCommonFont,
+                      child: CheckboxListTile(
+                        title: Text("Differ between font style"),
+                        subtitle: Text("Do you want to differ between regular, bold and italic for the calculation of the most common font?", style: TextStyle(fontSize: 11),),
+                        value: differStyle,
+                        onChanged: (newValue) {
+                          setState(() {
+                            differStyle = newValue!;
                           });
-                          await uploadFile(
-                              loggedInUser.email!, _image.path, audiofileTitle);
-                        }
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.fade,
-                                child: AudioOverviewScreen()));
-                        //Navigator.pushNamed(context, AudioOverviewScreen.id);
-                      }),
-                ],
+                        },
+                        controlAffinity: ListTileControlAffinity
+                            .leading, //  <-- leading Checkbox
+                      ),
+                    ),
+                    SizedBox(
+                      height: 24.0,
+                      width: double.infinity,
+                    ),
+                    TextButton(
+                        child: Text(
+                          'Continue 🎉',
+                          style: kSendButtonTextStyle,
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                          if (usePDF) {
+                            await addTextToFirestore(
+                                _pdfPath,
+                                audiofileTitle,
+                                audiofileCategory,
+                                audiofileLanguage,
+                                ssmlGender,
+                                onlyMostCommonFont);
+                          } else {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(loggedInUser.email)
+                                .collection("audio")
+                                .add({
+                              "title": audiofileTitle,
+                              "filepath":
+                                  "audio/${loggedInUser.email}/$audiofileTitle.mp3",
+                              "category": audiofileCategory,
+                              "language": audiofileLanguage,
+                              "ssmlGender": ssmlGender
+                            });
+                            await uploadFile(
+                                loggedInUser.email!, _image.path, audiofileTitle);
+                          }
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.fade,
+                                  child: AudioOverviewScreen()));
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          //Navigator.pushNamed(context, AudioOverviewScreen.id);
+                        }),
+                  ],
+                ),
               ),
             ),
           ),

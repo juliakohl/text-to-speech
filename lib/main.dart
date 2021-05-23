@@ -1,3 +1,4 @@
+// @dart=2.11
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:text_to_speech/screens/audio_overview_screen.dart';

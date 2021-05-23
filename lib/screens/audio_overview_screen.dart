@@ -133,7 +133,12 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 32.0,
+                height: 16.0,
+                width: double.infinity,
+              ),
+              Text('Don\'t worry if the audio doesn\'t play immediately after converting, the process can take up to 10 minutes.'),
+              SizedBox(
+                height: 16.0,
                 width: double.infinity,
               ),
               Expanded(
