@@ -41,6 +41,7 @@ class _CreateScreenState extends State<CreateScreen> {
   String audiofileCategory = "default";
   String audiofileLanguage = "de-DE";
   String ssmlGender = "MALE";
+  bool advancedSettings = false;
   bool onlyMostCommonFont = false;
   bool differStyle = false;
   bool excludeBrackets = false;
@@ -168,19 +169,19 @@ class _CreateScreenState extends State<CreateScreen> {
       text = extractor.extractText();
     }
 
-    //if(excludeBrackets){
+    if(excludeBrackets){
       text = excludeTextInBrackets(text);
-    //}
+    }
 
     document.dispose();
 
     //Display the text.
     print(text.substring(0, 1000));
 
-     //Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
+     /*Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
     if (text.length > 5000) {
       text = text.substring(0, 5000);
-    }
+    }*/
 
     // neues Document zu Firestore hinzufügen, das T2S Cloud Function triggered
     return _audioCollection
@@ -234,7 +235,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             IconButton(
                                 icon: const Icon(
                                   Icons.camera_alt,
-                                  color: Colors.white,
                                 ),
                                 tooltip:
                                     'You can use your camera to scan any text you have in front of you.',
@@ -243,7 +243,6 @@ class _CreateScreenState extends State<CreateScreen> {
                                 }),
                             Text(
                               'Take a photo',
-                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
@@ -255,7 +254,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             IconButton(
                               icon: const Icon(
                                 Icons.file_upload,
-                                color: Colors.white,
                               ),
                               tooltip:
                                   'You can upload an image as a text source. Language can not be changed for images. Default is set to German',
@@ -265,7 +263,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             ),
                             Text(
                               'Upload image\nfrom gallery',
-                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
@@ -277,7 +274,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             IconButton(
                               icon: const Icon(
                                 Icons.picture_as_pdf,
-                                color: Colors.white,
                               ),
                               tooltip:
                                   'You can choose a pdf file to convert its text to audio.',
@@ -288,7 +284,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             ),
                             Text(
                               'Choose a PDF',
-                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
@@ -374,32 +369,45 @@ class _CreateScreenState extends State<CreateScreen> {
                       width: double.infinity,
                     ),
                     CheckboxListTile(
-                      title: Text("Exclude text in brackets"),
-                      subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
-                      value: excludeBrackets,
+                      title: Text("Advanced Settings"),
+                      value: advancedSettings,
                       onChanged: (newValue) {
                         setState(() {
-                          excludeBrackets = newValue!;
+                          advancedSettings = newValue!;
                         });
                       },
                       controlAffinity: ListTileControlAffinity
                           .leading, //  <-- leading Checkbox
                     ),
-                    CheckboxListTile(
-                      title: Text("Only use most common font"),
-                      subtitle: Text("Selecting only the most common font (name, size and style) is a workaround for excluding unwanted text.", style: TextStyle(fontSize: 11),),
-                      value: onlyMostCommonFont,
-                      onChanged: (newValue) {
-                        setState(() {
-                          onlyMostCommonFont = newValue!;
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity
-                          .leading, //  <-- leading Checkbox
+                    Visibility(
+                      visible: advancedSettings,
+                      child: CheckboxListTile(
+                        title: Text("Exclude text in brackets"),
+                        subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
+                        value: excludeBrackets,
+                        onChanged: (newValue) {
+                          setState(() {
+                            excludeBrackets = newValue!;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity
+                            .leading, //  <-- leading Checkbox
+                      ),
                     ),
-                    SizedBox(
-                      height: 16.0,
-                      width: double.infinity,
+                    Visibility(
+                      visible: advancedSettings,
+                      child: CheckboxListTile(
+                        title: Text("Only use most common font"),
+                        subtitle: Text("Selecting only the most common font (name, size and style) is a workaround for excluding unwanted text.", style: TextStyle(fontSize: 11),),
+                        value: onlyMostCommonFont,
+                        onChanged: (newValue) {
+                          setState(() {
+                            onlyMostCommonFont = newValue!;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity
+                            .leading, //  <-- leading Checkbox
+                      ),
                     ),
                     Visibility(
                       visible: onlyMostCommonFont,
@@ -417,10 +425,10 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
                     SizedBox(
-                      height: 24.0,
+                      height: 16.0,
                       width: double.infinity,
                     ),
-                    TextButton(
+                    ElevatedButton(
                         child: Text(
                           'Continue 🎉',
                           style: kSendButtonTextStyle,

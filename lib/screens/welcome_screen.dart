@@ -79,13 +79,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               SizedBox(
                 height: 48.0,
               ),
-              TextButton(
+              ElevatedButton(
                 child: Text('Log In', style: kSendButtonTextStyle,),
                 onPressed: () {
                   Navigator.pushNamed(context, LoginScreen.id);
                 },
               ),
-              TextButton(
+              ElevatedButton(
                   child: Text('Register', style: kSendButtonTextStyle,),
                   onPressed: () {
                     Navigator.pushNamed(context, RegistrationScreen.id);

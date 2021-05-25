@@ -136,7 +136,10 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                 height: 16.0,
                 width: double.infinity,
               ),
-              Text('Don\'t worry if the audio doesn\'t play immediately after converting, the process can take up to 10 minutes.'),
+              Padding(
+                padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+                child: Text('Don\'t worry if the audio doesn\'t play immediately after converting, the process can take up to 10 minutes.'),
+              ),
               SizedBox(
                 height: 16.0,
                 width: double.infinity,
@@ -172,7 +175,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                                         builder: (BuildContext context) => _buildPopupDialog(context, document.id, loggedInUser.email),
                                       );
                                     },
-                                    child: Icon(Icons.delete_forever, color: Color(0xff73e2a7),)),
+                                    child: Icon(Icons.delete_forever,)),
                                 Expanded(
                                   child: TextButton(
                                     style: ButtonStyle(
@@ -220,10 +223,12 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  (Platform.operatingSystem != "ios") ?
                   IconButton(
                       icon: Icon(
                         Icons.fast_rewind_outlined,
                         size: 48,
+                        color: Colors.black54,
                       ),
                       onPressed: () {
                         setState(() {
@@ -231,12 +236,12 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                         });
                         assetsAudioPlayer.forwardOrRewind(speed);
                         //audioPlayer.stop();
-                      }),
+                      }) : SizedBox(width: 0,),
                   SizedBox(
                     width: 24.0,
                   ),
                   IconButton(
-                      icon: Icon(Icons.play_circle_outline, size: 48),
+                      icon: Icon(Icons.play_circle_outline, size: 48,color: Colors.black54,),
                       onPressed: () {
                         setState(() {
                           speed = 1.0;
@@ -247,7 +252,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                     width: 24.0,
                   ),
                   IconButton(
-                      icon: Icon(Icons.pause_circle_outline, size: 48),
+                      icon: Icon(Icons.pause_circle_outline, size: 48,color: Colors.black54),
                       onPressed: () {
                         assetsAudioPlayer.pause();
                         //audioPlayer.pause();
@@ -259,6 +264,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                       icon: Icon(
                         Icons.stop_circle_outlined,
                         size: 48,
+                        color: Colors.black54,
                       ),
                       onPressed: () {
                         setState(() {
@@ -270,17 +276,19 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                   SizedBox(
                     width: 24.0,
                   ),
+                  (Platform.operatingSystem != "ios") ?
                   IconButton(
                       icon: Icon(
                         Icons.fast_forward_outlined,
                         size: 48,
+                        color: Colors.black54,
                       ),
                       onPressed: () {
                         setState(() {
                           speed += 0.1;
                         });
                         assetsAudioPlayer.forwardOrRewind(speed);
-                      })
+                      }) : SizedBox(width: 0,),
                 ],
               ),
               SizedBox(height: 24.0),

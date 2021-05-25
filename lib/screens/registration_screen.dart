@@ -16,6 +16,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
   var email;
   var password;
+  var password2;
+  var hint = "";
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,25 +67,49 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
               ),
               SizedBox(
-                height: 24.0,
+                height: 8.0,
               ),
-              TextButton(
+              TextField(
+                obscureText: true,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  password2 = value;
+                },
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter the password once again'),
+              ),
+              SizedBox(
+                height: 16.0,
+              ),
+              Text(hint),
+              SizedBox(
+                height: 16.0,
+              ),
+              ElevatedButton(
                 child: Text('Register', style: kSendButtonTextStyle,),
                 onPressed: () async {
-                  // TODO: add firebase registration
-                  try{
-                    final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-                    // add a new document for the user in firestore
-                    FirebaseFirestore.instance.collection('users').doc(email).set({"since": DateTime.now()});
 
-                    if(newUser!=null){
-                      Navigator.pushNamed(context, CreateScreen.id);
+                  if (password == password2) {
+                    try{
+                      final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+                      // add a new document for the user in firestore
+                      FirebaseFirestore.instance.collection('users').doc(email).set({"since": DateTime.now()});
+
+                      if(newUser!=null){
+                        Navigator.pushNamed(context, CreateScreen.id);
+                      }
+                    }catch(e){
+                      setState(() {
+                        hint = e.toString().split(']')[1];
+                      });
+                      print(e);
                     }
-                  }catch(e){
-                    print(e);
+                  } else {
+                    setState(() {
+                      hint = "You entered two different passwords, please check your input for typos.";
+                    });
                   }
                   print(email);
-                  print(password);
+
                 },
               ),
             ],
