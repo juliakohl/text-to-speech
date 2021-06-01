@@ -20,7 +20,6 @@ class AudioOverviewScreen extends StatefulWidget {
 }
 
 class _AudioOverviewState extends State<AudioOverviewScreen> {
-
   // Navbar variables
   List pages = [AudioOverviewScreen(), CreateScreen(), SettingsScreen()];
   int selectedPage = 0;
@@ -29,11 +28,11 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   //AudioPlayer audioPlayer = AudioPlayer();
   final assetsAudioPlayer = AssetsAudioPlayer();
   var speed = 1.0;
+  var iconcolor = Colors.black54;
 
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
   var loggedInUser;
-
 
   @override
   void initState() {
@@ -55,18 +54,19 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
 
   void download(String url, String title) async {
     String audiofileURL = await downloadAudio(url, title);
-    Directory appDocDir = await getTemporaryDirectory();//getApplicationDocumentsDirectory();
-    print(appDocDir.path+" downloadURL: "+audiofileURL);
+    Directory appDocDir =
+        await getTemporaryDirectory(); //getApplicationDocumentsDirectory();
+    print(appDocDir.path + " downloadURL: " + audiofileURL);
     File downloadToFile = File('${appDocDir.path}/$title.mp3');
 
-      try {
-        await firebase_storage.FirebaseStorage.instanceFor(
-            bucket: 'text-to-speech-312509-audio')
-            .ref(url)
-            .writeToFile(downloadToFile);
-      } on firebase_core.FirebaseException catch (e) {
-        print(e);
-      }
+    try {
+      await firebase_storage.FirebaseStorage.instanceFor(
+              bucket: 'text-to-speech-312509-audio')
+          .ref(url)
+          .writeToFile(downloadToFile);
+    } on firebase_core.FirebaseException catch (e) {
+      print(e);
+    }
 
 /*
     try {
@@ -89,9 +89,11 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
 
     try {
       await assetsAudioPlayer.open(
-        Audio.network(audiofileURL, metas: Metas(
-          title:  title,
-        ),
+        Audio.network(
+          audiofileURL,
+          metas: Metas(
+            title: title,
+          ),
         ),
         showNotification: true,
         headPhoneStrategy: HeadPhoneStrategy.pauseOnUnplug,
@@ -99,7 +101,6 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     } catch (t) {
       print(t);
     }
-
   }
 
   Future<String> downloadAudio(String url, String title) async {
@@ -124,197 +125,256 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('In Sono'),
-        ),
-        body: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: 16.0,
-                width: double.infinity,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-                child: Text('Don\'t worry if the audio doesn\'t play immediately after converting, the process can take up to 10 minutes.'),
-              ),
-              SizedBox(
-                height: 16.0,
-                width: double.infinity,
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 300.0,
-                  child: StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(loggedInUser.email)
-                          .collection('audio')
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        // spinner wenn keine Daten existieren / noch nicht geladen sind
-                        if (!snapshot.hasData) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        // Liste mit Titeln der Audiofiles
-                        return ListView(
-                          children: snapshot.data!.docs.map((document) {
-                            return Row(
+      appBar: AppBar(
+        title: Text('In Sono'),
+      ),
+      body: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              height: 16.0,
+              width: double.infinity,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+              child: Text(
+                  'Don\'t worry if the audio doesn\'t play immediately after converting, the process can take up to 10 minutes.'),
+            ),
+            SizedBox(
+              height: 16.0,
+              width: double.infinity,
+            ),
+            Expanded(
+              child: SizedBox(
+                height: 300.0,
+                child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(loggedInUser.email)
+                        .collection('audio')
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      // spinner wenn keine Daten existieren / noch nicht geladen sind
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      // Liste mit Titeln der Audiofiles
+                      return ListView(
+                        children: snapshot.data!.docs.map((document) {
+                          return Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(width: 24.0,),
                                 TextButton(
                                     onPressed: () async {
                                       showDialog(
                                         context: context,
-                                        builder: (BuildContext context) => _buildPopupDialog(context, document.id, loggedInUser.email),
+                                        builder: (BuildContext context) =>
+                                            _buildPopupDialog(
+                                                context,
+                                                document.id,
+                                                loggedInUser.email),
                                       );
                                     },
-                                    child: Icon(Icons.delete_forever,)),
+                                    child: Icon(
+                                      Icons.delete_forever,
+                                    )),
                                 Expanded(
                                   child: TextButton(
                                     style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                            (Set<MaterialState> states) {
-                                          if (states.contains(MaterialState.pressed))
-                                            return Theme.of(context).colorScheme.primary.withOpacity(0.5);
-                                          return Colors.black12; // Use the component's default.
+                                      backgroundColor: MaterialStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          if (states
+                                              .contains(MaterialState.pressed))
+                                            return Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withOpacity(0.5);
+                                          return Colors
+                                              .black12; // Use the component's default.
                                         },
                                       ),
                                     ),
-                                  child: Text(document["category"]+': '+document["title"], style: kSendButtonTextStyle,),
-                                  onPressed: () async {
-                                    play(document["filepath"],
-                                        document["title"]);
-                                  },
-                              ),
+                                    child: Text(
+                                      document["category"] +
+                                          ': ' +
+                                          document["title"],
+                                      style: kSendButtonTextStyle,
+                                    ),
+                                    onPressed: () async {
+                                      play(document["filepath"],
+                                          document["title"]);
+                                    },
+                                  ),
                                 ),
-                                SizedBox(width: 24.0,),
-                                (Platform.operatingSystem != "ios") ?
-                                InkWell( //only for android devices
-                                    child: Icon(Icons.open_in_new),
-                                    onTap: () async {
-                                      var link = await downloadAudio(document["filepath"], document["title"]);
-                                      launch(link);
-                                    }
-                                ) :
-                                SizedBox(width: 0,),
-                                (Platform.operatingSystem != "ios") ?
-                                SizedBox(width: 24.0,) : SizedBox(width: 0,)
+                                SizedBox(
+                                  width: 16.0,
+                                ),
+                                (Platform.operatingSystem != "ios")
+                                    ? InkWell(
+                                        //only for android devices
+                                        child: Icon(Icons.open_in_new),
+                                        onTap: () async {
+                                          var link = await downloadAudio(
+                                              document["filepath"],
+                                              document["title"]);
+                                          launch(link);
+                                        })
+                                    : SizedBox(
+                                        width: 12.0,
+                                      ),
+                                (Platform.operatingSystem != "ios")
+                                    ? SizedBox(
+                                        width: 16.0,
+                                      )
+                                    : SizedBox(
+                                        width: 0,
+                                      )
                                 /*
                               IconButton(icon: Icon(Icons.download_rounded), onPressed: () async {
                                 download(document["filepath"],document["title"]);
                                 print("Download icon clicked");
                               },)*/
-                            ]
-                            );
-                          }).toList(),
-                        );
-                      }),
+                              ]);
+                        }).toList(),
+                      );
+                    }),
+              ),
+            ),
+            //const AudioSlider(),
+            IconButton(
+                icon: Icon(
+                  Icons.loop,
+                  size: 48,
+                  color: iconcolor,
                 ),
-              ),
-              //const AudioSlider(),
-              Text('SpeakingRate: '+speed.toString().substring(0,3)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  (Platform.operatingSystem != "ios") ?
-                  IconButton(
-                      icon: Icon(
-                        Icons.fast_rewind_outlined,
-                        size: 48,
-                        color: Colors.black54,
+                onPressed: () {
+                  LoopMode loopmode = assetsAudioPlayer.currentLoopMode!;
+                  if (loopmode == LoopMode.none) {
+                    assetsAudioPlayer.setLoopMode(LoopMode.single);
+                    setState(() {
+                      iconcolor = Colors.blue;
+                    });
+                  } else {
+                    assetsAudioPlayer.setLoopMode(LoopMode.none);
+                    setState(() {
+                      iconcolor = Colors.black54;
+                    });
+                  }
+                }),
+            //assetsAudioPlayer.setLoopMode(LoopMode.single);
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                (Platform.operatingSystem == "ios")
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.fast_rewind_outlined,
+                          size: 48,
+                          color: Colors.black54,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            speed -= 0.1;
+                          });
+                          assetsAudioPlayer.forwardOrRewind(speed);
+                          //audioPlayer.stop();
+                        })
+                    : SizedBox(
+                        width: 0,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          speed -= 0.1;
-                        });
-                        assetsAudioPlayer.forwardOrRewind(speed);
-                        //audioPlayer.stop();
-                      }) : SizedBox(width: 0,),
-                  SizedBox(
-                    width: 24.0,
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.play_circle_outline, size: 48,color: Colors.black54,),
-                      onPressed: () {
-                        setState(() {
-                          speed = 1.0;
-                        });
-                        assetsAudioPlayer.play();
-                      }),
-                  SizedBox(
-                    width: 24.0,
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.pause_circle_outline, size: 48,color: Colors.black54),
-                      onPressed: () {
-                        assetsAudioPlayer.pause();
-                        //audioPlayer.pause();
-                      }),
-                  SizedBox(
-                    width: 24.0,
-                  ),
-                  IconButton(
-                      icon: Icon(
-                        Icons.stop_circle_outlined,
-                        size: 48,
-                        color: Colors.black54,
+                SizedBox(
+                  width: 24.0,
+                ),
+                IconButton(
+                    icon: Icon(
+                      Icons.play_circle_outline,
+                      size: 48,
+                      color: Colors.black54,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        speed = 1.0;
+                      });
+                      assetsAudioPlayer.play();
+                    }),
+                SizedBox(
+                  width: 24.0,
+                ),
+                IconButton(
+                    icon: Icon(Icons.pause_circle_outline,
+                        size: 48, color: Colors.black54),
+                    onPressed: () {
+                      assetsAudioPlayer.pause();
+                      //audioPlayer.pause();
+                    }),
+                SizedBox(
+                  width: 24.0,
+                ),
+                IconButton(
+                    icon: Icon(
+                      Icons.stop_circle_outlined,
+                      size: 48,
+                      color: Colors.black54,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        speed = 1.0;
+                      });
+                      assetsAudioPlayer.stop();
+                      //audioPlayer.stop();
+                    }),
+                SizedBox(
+                  width: 24.0,
+                ),
+                (Platform.operatingSystem == "ios")
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.fast_forward_outlined,
+                          size: 48,
+                          color: Colors.black54,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            speed += 0.1;
+                          });
+                          assetsAudioPlayer.forwardOrRewind(speed);
+                        })
+                    : SizedBox(
+                        width: 0,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          speed = 1.0;
-                        });
-                        assetsAudioPlayer.stop();
-                        //audioPlayer.stop();
-                      }),
-                  SizedBox(
-                    width: 24.0,
-                  ),
-                  (Platform.operatingSystem != "ios") ?
-                  IconButton(
-                      icon: Icon(
-                        Icons.fast_forward_outlined,
-                        size: 48,
-                        color: Colors.black54,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          speed += 0.1;
-                        });
-                        assetsAudioPlayer.forwardOrRewind(speed);
-                      }) : SizedBox(width: 0,),
-                ],
-              ),
-              SizedBox(height: 24.0),
-            ],
-          ),
+              ],
+            ),
+            SizedBox(height: 24.0),
+          ],
         ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.headset, size: 30), label: 'Audio'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.add, size: 30), label: 'Add New'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.settings, size: 30), label: 'Settings'),
-            ],
-            elevation: 5.0,
-            currentIndex: selectedPage,
-            onTap: (index) {
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      type: PageTransitionType.fade, child: pages[index]));
-              //Navigator.pushNamed(context, pages[index]);
-            },
-          ),
-        );
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.headset, size: 30), label: 'Audio'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.add, size: 30), label: 'Add New'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings, size: 30), label: 'Settings'),
+        ],
+        elevation: 5.0,
+        currentIndex: selectedPage,
+        onTap: (index) {
+          Navigator.push(
+              context,
+              PageTransition(
+                  type: PageTransitionType.fade, child: pages[index]));
+          //Navigator.pushNamed(context, pages[index]);
+        },
+      ),
+    );
   }
 }
 
@@ -333,7 +393,6 @@ class _AudioSliderState extends State<AudioSlider> {
   set sliderValue(double value) {
     _currentSliderValue = value;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +434,8 @@ Widget _buildPopupDialog(BuildContext context, String id, email) {
               .collection('users')
               .doc(email)
               .collection('audio')
-              .doc(id).delete();
+              .doc(id)
+              .delete();
           Navigator.of(context).pop();
         },
         child: const Text('Yes, delete!'),

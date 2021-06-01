@@ -82,6 +82,7 @@ String reduceTextToCommonFont(result, differStyle) {
 
 String excludeTextInBrackets(text) {
   String result = text.replaceAll(new RegExp(r'\(.*?\)')," ");
+  result = result.replaceAll(new RegExp(r'\[.*?\]')," ");
   return result;
 }
 

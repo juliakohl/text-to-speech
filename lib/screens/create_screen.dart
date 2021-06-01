@@ -199,13 +199,13 @@ class _CreateScreenState extends State<CreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: Scaffold(
         appBar: AppBar(
           title: Text('In Sono'),
         ),
-        body: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          child: SafeArea(
+        body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 0),
@@ -341,7 +341,11 @@ class _CreateScreenState extends State<CreateScreen> {
                                 value: "es-ES",
                               ),
                               DropdownMenuItem(
-                                  child: Text("French"), value: "fr-FR")
+                                  child: Text("Français (France)"), value: "fr-FR"),
+                              DropdownMenuItem(
+                                child: Text("Italiano (Italia)"),
+                                value: "it-IT",
+                              )
                             ],
                             onChanged: (value) {
                               setState(() {
@@ -387,7 +391,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       visible: advancedSettings,
                       child: CheckboxListTile(
                         title: Text("Exclude text in brackets"),
-                        subtitle: Text("e.g. (Einstein, 1920)", style: TextStyle(fontSize: 11),),
+                        subtitle: Text("e.g. (Einstein, 1920) or [CL20]", style: TextStyle(fontSize: 11),),
                         value: excludeBrackets,
                         onChanged: (newValue) {
                           setState(() {
@@ -480,7 +484,6 @@ class _CreateScreenState extends State<CreateScreen> {
               ),
             ),
           ),
-        ),
         bottomNavigationBar: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
@@ -499,6 +502,6 @@ class _CreateScreenState extends State<CreateScreen> {
                     type: PageTransitionType.fade, child: pages[index]));
             //Navigator.pushNamed(context, pages[index]);
           },
-        ));
+        )));
   }
 }
