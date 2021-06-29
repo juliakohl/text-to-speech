@@ -45,6 +45,7 @@ class _CreateScreenState extends State<CreateScreen> {
   bool onlyMostCommonFont = false;
   bool differStyle = false;
   bool excludeBrackets = false;
+  bool pdf = false;
 
   //Firebase variables
   final _auth = FirebaseAuth.instance;
@@ -176,7 +177,7 @@ class _CreateScreenState extends State<CreateScreen> {
     document.dispose();
 
     //Display the text.
-    print(text.substring(0, 1000));
+    print(text.substring(0, 10));
 
      /*Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
     if (text.length > 5000) {
@@ -240,6 +241,9 @@ class _CreateScreenState extends State<CreateScreen> {
                                     'You can use your camera to scan any text you have in front of you.',
                                 onPressed: () {
                                   takeImage();
+                                  setState(() {
+                                    pdf = false;
+                                  });
                                 }),
                             Text(
                               'Take a photo',
@@ -259,6 +263,9 @@ class _CreateScreenState extends State<CreateScreen> {
                                   'You can upload an image as a text source. Language can not be changed for images. Default is set to German',
                               onPressed: () {
                                 getImage();
+                                setState(() {
+                                  pdf = false;
+                                });
                               },
                             ),
                             Text(
@@ -280,6 +287,9 @@ class _CreateScreenState extends State<CreateScreen> {
                               onPressed: () async {
                                 await processPDF();
                                 //Navigator.pushNamed(context, Create2Screen.id);
+                                setState(() {
+                                  pdf = true;
+                                });
                               },
                             ),
                             Text(
@@ -376,16 +386,19 @@ class _CreateScreenState extends State<CreateScreen> {
                       height: 32.0,
                       width: double.infinity,
                     ),
-                    CheckboxListTile(
-                      title: Text("Advanced Settings"),
-                      value: advancedSettings,
-                      onChanged: (newValue) {
-                        setState(() {
-                          advancedSettings = newValue!;
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity
-                          .leading, //  <-- leading Checkbox
+                    Visibility(
+                      visible: pdf,
+                      child: CheckboxListTile(
+                        title: Text("Advanced Settings"),
+                        value: advancedSettings,
+                        onChanged: (newValue) {
+                          setState(() {
+                            advancedSettings = newValue!;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity
+                            .leading, //  <-- leading Checkbox
+                      ),
                     ),
                     Visibility(
                       visible: advancedSettings,
@@ -454,6 +467,8 @@ class _CreateScreenState extends State<CreateScreen> {
                                 ssmlGender,
                                 onlyMostCommonFont);
                           } else {
+                            await uploadFile(
+                                loggedInUser.email!, _image.path, audiofileTitle);
                             await FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(loggedInUser.email)
@@ -466,8 +481,7 @@ class _CreateScreenState extends State<CreateScreen> {
                               "language": audiofileLanguage,
                               "ssmlGender": ssmlGender
                             });
-                            await uploadFile(
-                                loggedInUser.email!, _image.path, audiofileTitle);
+
                           }
                           Navigator.push(
                               context,

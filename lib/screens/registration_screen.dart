@@ -75,7 +75,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 onChanged: (value) {
                   password2 = value;
                 },
-                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter the password once again'),
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Confirm password'),
               ),
               SizedBox(
                 height: 16.0,
