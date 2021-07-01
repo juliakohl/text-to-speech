@@ -449,50 +449,53 @@ class _CreateScreenState extends State<CreateScreen> {
                       height: 16.0,
                       width: double.infinity,
                     ),
-                    ElevatedButton(
-                        child: Text(
-                          'Continue 🎉',
-                          style: kSendButtonTextStyle,
-                        ),
-                        onPressed: () async {
-                          setState(() {
-                            showSpinner = true;
-                          });
-                          if (usePDF) {
-                            await addTextToFirestore(
-                                _pdfPath,
-                                audiofileTitle,
-                                audiofileCategory,
-                                audiofileLanguage,
-                                ssmlGender,
-                                onlyMostCommonFont);
-                          } else {
-                            await uploadFile(
-                                loggedInUser.email!, _image.path, audiofileTitle);
-                            await FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(loggedInUser.email)
-                                .collection("audio")
-                                .add({
-                              "title": audiofileTitle,
-                              "filepath":
-                                  "audio/${loggedInUser.email}/$audiofileTitle.mp3",
-                              "category": audiofileCategory,
-                              "language": audiofileLanguage,
-                              "ssmlGender": ssmlGender
+                    Visibility(
+                      visible: _pdfPath!=null || _image!=null,
+                      child: ElevatedButton(
+                          child: Text(
+                            'Continue 🎉',
+                            style: kSendButtonTextStyle,
+                          ),
+                          onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
                             });
+                            if (usePDF) {
+                              await addTextToFirestore(
+                                  _pdfPath,
+                                  audiofileTitle,
+                                  audiofileCategory,
+                                  audiofileLanguage,
+                                  ssmlGender,
+                                  onlyMostCommonFont);
+                            } else {
+                              await uploadFile(
+                                  loggedInUser.email!, _image.path, audiofileTitle);
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(loggedInUser.email)
+                                  .collection("audio")
+                                  .add({
+                                "title": audiofileTitle,
+                                "filepath":
+                                    "audio/${loggedInUser.email}/$audiofileTitle.mp3",
+                                "category": audiofileCategory,
+                                "language": audiofileLanguage,
+                                "ssmlGender": ssmlGender
+                              });
 
-                          }
-                          Navigator.push(
-                              context,
-                              PageTransition(
-                                  type: PageTransitionType.fade,
-                                  child: AudioOverviewScreen()));
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          //Navigator.pushNamed(context, AudioOverviewScreen.id);
-                        }),
+                            }
+                            Navigator.push(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: AudioOverviewScreen()));
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            //Navigator.pushNamed(context, AudioOverviewScreen.id);
+                          }),
+                    ),
                   ],
                 ),
               ),
