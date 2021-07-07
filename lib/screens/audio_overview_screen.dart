@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -33,12 +35,16 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   // auth instance to get current user
   final _auth = FirebaseAuth.instance;
   var loggedInUser;
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
 
   @override
   void initState() {
     super.initState();
 
     getCurrentUser();
+    trackScreenview();
   }
 
   void getCurrentUser() {
@@ -47,6 +53,15 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
       if (user != null) {
         loggedInUser = user;
       }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  // firebase analytics pageview
+  void trackScreenview() {
+    try {
+      analytics.setCurrentScreen(screenName: 'audio player');
     } catch (e) {
       print(e);
     }
@@ -67,20 +82,6 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
     } on firebase_core.FirebaseException catch (e) {
       print(e);
     }
-
-/*
-    try {
-      final task = await FlutterDownloader.enqueue(
-        url: audiofileURL,
-        savedDir: '${appDocDir.path}',
-        showNotification: true, // show download progress in status bar (for Android)
-        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-      );
-    } catch (e) {
-      print(e);
-    }
-    */
-    //final tasks = await FlutterDownloader.loadTasks();
   }
 
   // mp3 von cloud storage url abspielen
@@ -106,8 +107,6 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
   Future<String> downloadAudio(String url, String title) async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     print(appDocDir.path);
-
-    //File downloadToFile = File('${appDocDir.path}/t2s_audiofile.mp3');
 
     try {
       String downloadURL = await firebase_storage.FirebaseStorage.instanceFor(

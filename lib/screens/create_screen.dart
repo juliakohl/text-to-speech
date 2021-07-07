@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -49,8 +51,11 @@ class _CreateScreenState extends State<CreateScreen> {
 
   //Firebase variables
   final _auth = FirebaseAuth.instance;
-  //FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var loggedInUser;
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
+
 
   // access the users camera and save the image file to _image
   Future takeImage() async {
@@ -92,6 +97,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
     //get the current user from firebase auth
     getCurrentUser();
+    trackScreenview();
   }
 
   // retrieve the current user from firebase auth
@@ -100,11 +106,28 @@ class _CreateScreenState extends State<CreateScreen> {
       final user = _auth.currentUser;
       if (user != null) {
         loggedInUser = user;
-        print(loggedInUser.email);
       }
     } catch (e) {
       print(e);
     }
+  }
+
+  // firebase analytics pageview
+  void trackScreenview() {
+    try {
+        analytics.setCurrentScreen(screenName: 'create new audio');
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void logEvent(String name, int value){
+    analytics.logEvent(
+      name: name,
+      parameters: <String, dynamic>{
+        'int': value,
+      },
+    );
   }
 
   // upload a file to the users folder in the firebase storage (default bucket)
@@ -178,6 +201,9 @@ class _CreateScreenState extends State<CreateScreen> {
 
     //Display the text.
     print(text.substring(0, 10));
+
+    // log analytics event with character length
+    logEvent('newPDFwithLength', text.length);
 
      /*Falls der Text mehr als 500 Zeichen hat: kürzen (Testing Zwecke)
     if (text.length > 5000) {

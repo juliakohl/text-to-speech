@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:text_to_speech/screens/create_screen.dart';
-
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../constants.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,6 +13,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
   final _auth = FirebaseAuth.instance;
   late String email = "";
   late String password = "";
@@ -84,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         .signInWithEmailAndPassword(
                             email: email, password: password);
                     if (user != null) {
+                      analytics.logLogin(loginMethod: 'EmailAndPassword');
                       Navigator.pushNamed(context, CreateScreen.id);
                     }
                   } on FirebaseAuthException catch (e) {

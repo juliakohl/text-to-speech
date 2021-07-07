@@ -9,6 +9,8 @@ import 'package:text_to_speech/screens/welcome_screen.dart';
 import 'package:text_to_speech/screens/login_screen.dart';
 import 'package:text_to_speech/screens/registration_screen.dart';
 import 'package:text_to_speech/screens/home_screen.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 
 void main() async {
@@ -18,9 +20,16 @@ void main() async {
 }
 
 class InSono extends StatelessWidget {
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light().copyWith(/*accentColor: Color(0xff73e2a7), buttonColor: Color(0xff73e2a7), toggleableActiveColor: Color(0xff73e2a7)*/),
       initialRoute: WelcomeScreen.id,

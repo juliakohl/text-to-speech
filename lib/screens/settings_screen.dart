@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:text_to_speech/screens/welcome_screen.dart';
 import 'package:text_to_speech/constants.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String id = 'settings_screen';
@@ -20,6 +22,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _auth = FirebaseAuth.instance;
   //FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var loggedInUser;
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
   TextEditingController fieldText = TextEditingController();
 
   String feedback = "";
@@ -34,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     //get the current user from firebase auth
     getCurrentUser();
+    trackScreenview();
   }
 
   // retrieve the current user from firebase auth
@@ -42,12 +48,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final user = _auth.currentUser;
       if (user != null) {
         loggedInUser = user;
-        print(loggedInUser.email);
       }
     } catch (e) {
       print(e);
     }
   }
+
+  // firebase analytics pageview
+  void trackScreenview() {
+    try {
+      analytics.setCurrentScreen(screenName: 'settings');
+    } catch (e) {
+      print(e);
+    }
+  }
+
 
   void clearText() {
     fieldText.clear();
