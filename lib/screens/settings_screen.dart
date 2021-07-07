@@ -9,6 +9,7 @@ import 'package:text_to_speech/screens/welcome_screen.dart';
 import 'package:text_to_speech/constants.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String id = 'settings_screen';
@@ -83,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 200.0,
+                height: 140.0,
                 width: double.infinity,
               ),
               Text('Log Out'),
@@ -127,6 +128,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     });
                     //Navigator.pushNamed(context, AudioOverviewScreen.id);
                   }),
+              SizedBox(
+                height: 50.0,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Container(
+                  decoration: new BoxDecoration(
+                    color: Colors.grey[300],
+                    boxShadow: [
+                      new BoxShadow(
+                        color: Colors.black38,
+                        offset: new Offset(5.0, 5.0),
+                        blurRadius: 10.0,
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Text('This app is using chargeable services. I would very much appreciate a small donation, if you like the app.',
+                            textAlign: TextAlign.center),
+                        SizedBox(
+                          height: 12.0,
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            var link = 'https://www.buymeacoffee.com/juliakohl';
+                            launch(link);
+                          }, child: Text('Buy me a coffee! ☕ '),
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(Colors.lightGreen)
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
