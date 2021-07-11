@@ -153,6 +153,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                         .collection('users')
                         .doc(loggedInUser.email)
                         .collection('audio')
+                        .orderBy('category', descending: false)
                         .snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -202,7 +203,7 @@ class _AudioOverviewState extends State<AudioOverviewScreen> {
                                     child: Text(
                                       document["category"] +
                                           ': ' +
-                                          document["title"],
+                                          document["title"].split("*:*").first,
                                       style: kSendButtonTextStyle,
                                     ),
                                     onPressed: () async {

@@ -39,7 +39,7 @@ class _CreateScreenState extends State<CreateScreen> {
   var _pdfPath;
 
   // Audio File variables
-  String audiofileTitle = "audiofile";
+  String audiofileTitle = "audiofile"+'*:*'+DateTime.now().toString();
   String audiofileCategory = "default";
   String audiofileLanguage = "de-DE";
   String ssmlGender = "MALE";
@@ -331,7 +331,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     TextField(
                       textAlign: TextAlign.center,
                       onChanged: (title) {
-                        audiofileTitle = title;
+                        audiofileTitle = title+'*:*'+DateTime.now().toString();
                       },
                       decoration: kTextFieldDecoration.copyWith(
                           hintText: 'Enter a title for the audiofile'),
